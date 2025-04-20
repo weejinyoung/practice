@@ -1,8 +1,6 @@
 name: Test Environment Variables Extraction
-
 on:
   workflow_dispatch:
-
 jobs:
   test-env-vars:
     runs-on: ubuntu-latest
@@ -11,7 +9,7 @@ jobs:
         id: export-env
         env: ${{ secrets }}
         run: |
-          # 현재 환경변수 출력 (비밀값은 가려짐)
+          # 현재 환경변수 출력
           echo "모든 환경변수 목록:"
           env | sort
           
@@ -21,16 +19,16 @@ jobs:
             echo "변환 중인 변수: $var"
             val=$(eval echo \$${var})
             var_name=${var#ENV_}
-            JAVA_OPTS="$JAVA_OPTS -D$var_name=MASKED_VALUE"  # 실제 값은 로그에 노출되지 않도록 마스킹
+            JAVA_OPTS="$JAVA_OPTS -D$var_name=$val"
           done
-          echo "생성된 JAVA_OPTS (마스킹됨): $JAVA_OPTS"
+          echo "생성된 JAVA_OPTS: $JAVA_OPTS"
           
           # GitHub 출력 변수로 저장
           echo "java_opts=$JAVA_OPTS" >> $GITHUB_OUTPUT
-
+      
       - name: 출력 변수 사용 테스트
         run: |
-          # 이전 단계에서 생성한 출력 변수 사용 (실제 값은 로그에 나타나지 않음)
+          # 이전 단계에서 생성한 출력 변수 사용
           echo "이전 단계에서 생성된 JAVA_OPTS: ${{ steps.export-env.outputs.java_opts }}"
           
           # 테스트용 로컬 변수 설정
